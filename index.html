@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Kalkulator Project</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F6F3;
+    --surface: #FFFFFF;
+    --surface2: #F0EEE9;
+    --border: #E0DDD6;
+    --border2: #C8C5BC;
+    --text: #1A1916;
+    --text2: #6B6860;
+    --text3: #9B9890;
+    --accent: #1D5FA8;
+    --accent-bg: #EBF2FB;
+    --accent-text: #0C3E73;
+    --success: #1A6B45;
+    --success-bg: #E6F4ED;
+    --danger: #A32020;
+    --radius: 10px;
+    --radius-lg: 14px;
+    --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --font-mono: 'SF Mono', 'Fira Code', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111110;
+      --surface: #1C1B1A;
+      --surface2: #252422;
+      --border: #2E2D2B;
+      --border2: #3D3C39;
+      --text: #F0EEE9;
+      --text2: #9B9890;
+      --text3: #6B6860;
+      --accent: #5A9FE0;
+      --accent-bg: #0D2340;
+      --accent-text: #A8CEFF;
+      --success: #4CAF82;
+      --success-bg: #0A2419;
+      --danger: #E06060;
+    }
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 15px;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding-bottom: 2rem;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.25rem 0.875rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  header h1 { font-size: 16px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
+  header p { font-size: 12px; color: var(--text2); margin-top: 1px; }
+
+  .container { max-width: 540px; margin: 0 auto; padding: 1rem 1rem 0; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.125rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .card-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .card-title .step {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700;
+    color: var(--text2); flex-shrink: 0;
+  }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .field { display: flex; flex-direction: column; gap: 4px; }
+
+  .field label { font-size: 12px; color: var(--text2); font-weight: 500; }
+
+  .field input, .field select {
+    width: 100%;
+    padding: 10px 11px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 16px;
+    font-family: var(--font);
+    outline: none;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .field input:focus, .field select:focus {
+    border-color: var(--accent);
+    background: var(--surface);
+  }
+
+  .field input::placeholder { color: var(--text3); }
+  .field .hint { font-size: 11px; color: var(--text3); margin-top: 1px; }
+
+  .computed-field {
+    background: var(--accent-bg);
+    border-radius: var(--radius);
+    padding: 10px 11px;
+    min-height: 42px;
+    display: flex; align-items: center;
+  }
+
+  .computed-field .cv {
+    font-size: 15px; font-weight: 600;
+    color: var(--accent-text);
+    font-family: var(--font-mono);
+  }
+
+  .margin-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 0.75rem; }
+
+  .pill {
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text2);
+    font-size: 13px; font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .pill.active {
+    background: var(--accent-bg);
+    color: var(--accent-text);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  .add-btn {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 13px; color: var(--accent);
+    background: none; border: none; cursor: pointer;
+    padding: 6px 0; margin-top: 4px;
+    font-family: var(--font);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .add-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+
+  .extra-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 8px;
+    align-items: flex-end;
+    margin-bottom: 8px;
+  }
+
+  .del-btn {
+    width: 42px; height: 42px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: none; color: var(--text3);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .del-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+
+  .summary-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+  }
+
+  .summary-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 1.125rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+
+  .summary-row:last-child { border-bottom: none; }
+  .summary-row .sl { color: var(--text2); }
+  .summary-row .sv { font-weight: 500; font-family: var(--font-mono); font-size: 13px; }
+  .summary-row .sv.minus { color: var(--danger); }
+  .summary-row .sv.plus { color: var(--success); }
+  .summary-row.total { background: var(--surface2); }
+  .summary-row.total .sl { color: var(--text); font-weight: 600; font-size: 14px; }
+  .summary-row.total .sv { font-size: 15px; color: var(--text); }
+
+  .result-hero {
+    background: var(--accent-bg);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .result-hero .label {
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--accent-text); opacity: 0.7;
+  }
+
+  .result-hero .value {
+    font-size: 28px; font-weight: 700;
+    color: var(--accent-text);
+    font-family: var(--font-mono);
+    letter-spacing: -0.02em;
+    margin-top: 2px;
+  }
+
+  .result-hero .sub {
+    font-size: 12px; color: var(--accent-text);
+    opacity: 0.65; margin-top: 4px;
+  }
+
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 0.75rem; }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+  }
+
+  .stat-card .sl { font-size: 11px; color: var(--text3); margin-bottom: 2px; }
+  .stat-card .sv { font-size: 16px; font-weight: 600; font-family: var(--font-mono); color: var(--text); }
+  .stat-card.green .sv { color: var(--success); }
+
+  .reset-btn {
+    width: 100%; padding: 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: none; color: var(--text2);
+    font-size: 14px; cursor: pointer;
+    font-family: var(--font);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .divider-label {
+    font-size: 11px; color: var(--text3);
+    text-align: center; margin: 0.5rem 0;
+    text-transform: uppercase; letter-spacing: 0.07em;
+  }
+
+  #custom-margin-wrap { margin-top: 8px; display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Kalkulator Project</h1>
+  <p>Modal Distributor &amp; Harga Jual</p>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <div class="card-title"><span class="step">1</span> Harga pricelist</div>
+    <div class="grid2">
+      <div class="field">
+        <label>Pricelist (Rp)</label>
+        <input type="text" inputmode="decimal" id="pricelist" placeholder="0" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Pengali (×)</label>
+        <input type="text" inputmode="decimal" id="multiplier" placeholder="1" value="1" autocomplete="off">
+        <span class="hint">Isi 1 jika tidak ada pengali</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="step">2</span> Diskon</div>
+    <div class="grid2">
+      <div class="field">
+        <label>Diskon (%)</label>
+        <input type="text" inputmode="decimal" id="discount" placeholder="0" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Harga setelah diskon</label>
+        <div class="computed-field">
+          <span class="cv" id="after-discount">Rp 0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="step">3</span> Training</div>
+    <div class="field">
+      <label>Biaya training (Rp)</label>
+      <input type="text" inputmode="decimal" id="training" placeholder="0" autocomplete="off">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="step">4</span> Cost lain <span style="font-weight:400;font-size:11px;color:var(--text3);text-transform:none;letter-spacing:0">(opsional)</span></div>
+    <div id="extra-costs"></div>
+    <button class="add-btn" type="button" onclick="addCost()">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Tambah item
+    </button>
+  </div>
+
+  <div class="divider-label">Rincian modal</div>
+  <div class="summary-card">
+    <div class="summary-row">
+      <span class="sl">Pricelist × pengali</span>
+      <span class="sv" id="r-base">Rp 0</span>
+    </div>
+    <div class="summary-row">
+      <span class="sl">Diskon</span>
+      <span class="sv minus" id="r-discount">− Rp 0</span>
+    </div>
+    <div class="summary-row">
+      <span class="sl">Training</span>
+      <span class="sv plus" id="r-training">+ Rp 0</span>
+    </div>
+    <div class="summary-row">
+      <span class="sl">Cost lain</span>
+      <span class="sv plus" id="r-extra">+ Rp 0</span>
+    </div>
+    <div class="summary-row total">
+      <span class="sl">Modal distributor</span>
+      <span class="sv" id="r-modal">Rp 0</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="step">5</span> Margin distributor</div>
+    <div class="margin-pills">
+      <button class="pill" type="button" onclick="setMargin(10, this)">10%</button>
+      <button class="pill active" type="button" onclick="setMargin(15, this)">15%</button>
+      <button class="pill" type="button" onclick="setMargin(20, this)">20%</button>
+      <button class="pill" type="button" id="custom-pill" onclick="toggleCustom(this)">Lainnya</button>
+    </div>
+    <div id="custom-margin-wrap">
+      <div class="field">
+        <label>Margin kustom (%)</label>
+        <input type="text" inputmode="decimal" id="custom-margin" placeholder="0" autocomplete="off">
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--text3);margin-top:6px">Formula: Harga Jual = Modal ÷ (1 − Margin%)</p>
+  </div>
+
+  <div class="divider-label">Hasil</div>
+
+  <div class="result-hero">
+    <div class="label">Harga jual</div>
+    <div class="value" id="r-harga-jual">Rp 0</div>
+    <div class="sub" id="r-sub">Modal Rp 0 · Margin 15%</div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card green">
+      <div class="sl">Margin (Rp)</div>
+      <div class="sv" id="r-margin-rp">Rp 0</div>
+    </div>
+    <div class="stat-card">
+      <div class="sl">Margin aktif</div>
+      <div class="sv" id="r-margin-pct">15%</div>
+    </div>
+  </div>
+
+  <button class="reset-btn" type="button" onclick="resetAll()">↺ Reset semua</button>
+
+</div>
+
+<script>
+var marginPct = 15;
+var customMode = false;
+
+function parseNum(val) {
+  if (!val) return 0;
+  // ganti koma dengan titik supaya iOS bisa parse desimal
+  var cleaned = String(val).replace(/[^\d.,]/g, '').replace(',', '.');
+  return parseFloat(cleaned) || 0;
+}
+
+function fmt(n) {
+  return 'Rp ' + Math.round(n).toLocaleString('id-ID');
+}
+
+function bindInputs() {
+  var ids = ['pricelist','multiplier','discount','training','custom-margin'];
+  ids.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', calc);
+    el.addEventListener('change', calc);
+    el.addEventListener('keyup', calc);
+  });
+}
+
+function setMargin(val, btn) {
+  marginPct = val;
+  customMode = false;
+  document.getElementById('custom-margin-wrap').style.display = 'none';
+  document.querySelectorAll('.pill').forEach(function(p){ p.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  calc();
+}
+
+function toggleCustom(btn) {
+  customMode = true;
+  document.querySelectorAll('.pill').forEach(function(p){ p.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('custom-margin-wrap').style.display = 'block';
+  setTimeout(function(){ document.getElementById('custom-margin').focus(); }, 50);
+  calc();
+}
+
+function addCost() {
+  var container = document.getElementById('extra-costs');
+  var row = document.createElement('div');
+  row.className = 'extra-row';
+  row.innerHTML =
+    '<div class="field"><label>Keterangan</label><input type="text" placeholder="Instalasi, lisensi..." autocomplete="off"></div>' +
+    '<div class="field"><label>Jumlah (Rp)</label><input type="text" inputmode="decimal" placeholder="0" autocomplete="off"></div>' +
+    '<button type="button" class="del-btn" aria-label="Hapus"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
+  container.appendChild(row);
+
+  var numInput = row.querySelectorAll('input')[1];
+  numInput.addEventListener('input', calc);
+  numInput.addEventListener('change', calc);
+  numInput.addEventListener('keyup', calc);
+
+  var delBtn = row.querySelector('.del-btn');
+  delBtn.addEventListener('click', function(){ row.remove(); calc(); });
+}
+
+function calc() {
+  if (customMode) {
+    marginPct = parseNum(document.getElementById('custom-margin').value);
+  }
+
+  var pricelist   = parseNum(document.getElementById('pricelist').value);
+  var multiplier  = parseNum(document.getElementById('multiplier').value) || 1;
+  var discountPct = parseNum(document.getElementById('discount').value);
+  var training    = parseNum(document.getElementById('training').value);
+
+  var base        = pricelist * multiplier;
+  var discountAmt = base * (discountPct / 100);
+  var afterDisc   = base - discountAmt;
+
+  var extraTotal = 0;
+  document.querySelectorAll('.extra-row').forEach(function(row){
+    var inputs = row.querySelectorAll('input');
+    if (inputs.length >= 2) extraTotal += parseNum(inputs[1].value);
+  });
+
+  var modal = afterDisc + training + extraTotal;
+
+  var hargaJual = 0;
+  if (marginPct < 100 && modal > 0) {
+    hargaJual = modal / (1 - marginPct / 100);
+  }
+  var marginRp = hargaJual - modal;
+
+  document.getElementById('after-discount').textContent = fmt(afterDisc);
+  document.getElementById('r-base').textContent         = fmt(base);
+  document.getElementById('r-discount').textContent     = '− ' + fmt(discountAmt);
+  document.getElementById('r-training').textContent     = '+ ' + fmt(training);
+  document.getElementById('r-extra').textContent        = '+ ' + fmt(extraTotal);
+  document.getElementById('r-modal').textContent        = fmt(modal);
+  document.getElementById('r-harga-jual').textContent   = fmt(hargaJual);
+  document.getElementById('r-sub').textContent          = 'Modal ' + fmt(modal) + ' · Margin ' + marginPct.toFixed(1) + '%';
+  document.getElementById('r-margin-rp').textContent    = fmt(marginRp);
+  document.getElementById('r-margin-pct').textContent   = marginPct.toFixed(1) + '%';
+}
+
+function resetAll() {
+  ['pricelist','discount','training','custom-margin'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('multiplier').value = '1';
+  document.getElementById('extra-costs').innerHTML = '';
+  document.getElementById('custom-margin-wrap').style.display = 'none';
+  customMode = false;
+  marginPct  = 15;
+  document.querySelectorAll('.pill').forEach(function(p, i){ p.classList.toggle('active', i === 1); });
+  calc();
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  bindInputs();
+  calc();
+});
+</script>
+</body>
+</html>
